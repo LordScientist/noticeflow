@@ -54,7 +54,7 @@
   h1 { font-size: 22px; margin: 0; letter-spacing: -0.01em; }
   .tag-count { font-size: 13px; color: var(--ink-soft); white-space: nowrap; }
   .sub { color: var(--ink-soft); font-size: 14px; margin-top: 4px; max-width: 46ch; line-height: 1.5; }
-
+ 
   .tabs { display: flex; gap: 6px; margin-top: 20px; border-bottom: 1px solid var(--line); }
   .tab {
     background: none; border: none; font-size: 14px; color: var(--ink-soft);
@@ -62,10 +62,10 @@
     font-family: inherit;
   }
   .tab.active { color: var(--ink); border-bottom-color: var(--accent); font-weight: 600; }
-
+ 
   .view { margin-top: 18px; }
   .view[hidden] { display: none; }
-
+ 
   .card {
     background: var(--surface);
     border: 1px solid var(--line);
@@ -83,7 +83,7 @@
   .cat-event { background: var(--cat-event); }
   .cat-lost { background: var(--cat-lost); }
   .cat-general { background: var(--cat-general); }
-
+ 
   .card-note { font-size: 13.5px; color: var(--ink-soft); margin-top: 6px; line-height: 1.5; }
   .card-meta { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; }
   .expiry { font-size: 12.5px; font-weight: 600; }
@@ -91,7 +91,7 @@
   .expiry.soon { color: var(--soon); }
   .expiry.safe { color: var(--safe); }
   .posted { font-size: 12px; color: var(--ink-soft); }
-
+ 
   .share-btn {
     display: inline-flex; align-items: center; gap: 5px;
     font-size: 12.5px; color: var(--ink-soft); background: none;
@@ -99,14 +99,14 @@
     cursor: pointer; font-family: inherit; text-decoration: none;
   }
   .share-btn:hover { border-color: var(--accent); color: var(--accent); }
-
+ 
   .empty { color: var(--ink-soft); font-size: 14px; padding: 30px 4px; text-align: center; }
-
+ 
   .archive-toggle {
     background: none; border: none; color: var(--ink-soft); font-size: 13px;
     text-decoration: underline; cursor: pointer; padding: 14px 0 0; font-family: inherit;
   }
-
+ 
   form { display: flex; flex-direction: column; gap: 14px; }
   .form-head { display: flex; justify-content: space-between; align-items: center; }
   .form-head h2 { font-size: 16px; margin: 0; }
@@ -145,14 +145,14 @@
       <button class="tab" data-tab="add">Add notice</button>
     </div>
   </header>
-
+ 
   <section class="view" id="feedView">
     <div id="feedList"></div>
     <div id="feedEmpty" class="empty" hidden>Nothing live right now. Everything on the board has expired.</div>
     <button class="archive-toggle" id="archiveToggle">Show expired (archive)</button>
     <div id="archiveList" hidden></div>
   </section>
-
+ 
   <section class="view" id="addView" hidden>
     <div class="card">
       <div class="form-head">
@@ -188,12 +188,12 @@
   </section>
 </div>
 <div class="toast" id="toast"></div>
-
+ 
 <script>
 (function () {
   var STORAGE_KEY = "noticeflow_notices_v1";
   var CAT_LABEL = { academic: "Academic", event: "Event", lost: "Lost & found", general: "General" };
-
+ 
   var seed = [
     { id: "s1", title: "CSM 152 group assignment briefing", category: "academic",
       posted: daysAgo(1), expiry: daysFromNow(1),
@@ -208,11 +208,11 @@
       posted: daysAgo(6), expiry: daysAgo(1),
       note: "Supply now runs 5am to 9am only, effective this week." }
   ];
-
+ 
   function daysAgo(n) { var d = new Date(); d.setDate(d.getDate() - n); return d.toISOString().slice(0,10); }
   function daysFromNow(n) { var d = new Date(); d.setDate(d.getDate() + n); return d.toISOString().slice(0,10); }
   function todayStr() { return new Date().toISOString().slice(0,10); }
-
+ 
   function load() {
     try {
       var raw = localStorage.getItem(STORAGE_KEY);
@@ -224,9 +224,9 @@
   function save(notices) {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(notices)); } catch (e) {}
   }
-
+ 
   var notices = load();
-
+ 
   function daysUntil(dateStr) {
     var today = new Date(todayStr());
     var target = new Date(dateStr);
@@ -244,7 +244,7 @@
     if (n <= 3) return { text: "Expires in " + n + " days", cls: "soon" };
     return { text: "Expires " + fmtDate(dateStr), cls: "safe" };
   }
-
+ 
   function renderList(el, list, emptyMsg) {
     el.innerHTML = "";
     if (list.length === 0) {
@@ -275,32 +275,32 @@
       el.appendChild(card);
     });
   }
-
+ 
   function escapeHtml(s) {
     var div = document.createElement("div");
     div.textContent = s;
     return div.innerHTML;
   }
-
+ 
   function refresh() {
     var live = notices.filter(function (n) { return daysUntil(n.expiry) >= 0; })
       .sort(function (a, b) { return daysUntil(a.expiry) - daysUntil(b.expiry); });
     var expired = notices.filter(function (n) { return daysUntil(n.expiry) < 0; })
       .sort(function (a, b) { return daysUntil(b.expiry) - daysUntil(a.expiry); });
-
+ 
     renderList(document.getElementById("feedList"), live, "");
     document.getElementById("feedEmpty").hidden = live.length !== 0;
     renderList(document.getElementById("archiveList"), expired, "Nothing has expired yet.");
     document.getElementById("liveCount").textContent = live.length + " live";
   }
-
+ 
   var archiveOpen = false;
   document.getElementById("archiveToggle").addEventListener("click", function () {
     archiveOpen = !archiveOpen;
     document.getElementById("archiveList").hidden = !archiveOpen;
     this.textContent = archiveOpen ? "Hide expired" : "Show expired (archive)";
   });
-
+ 
   var tabs = document.querySelectorAll(".tab");
   tabs.forEach(function (t) {
     t.addEventListener("click", function () {
@@ -310,7 +310,7 @@
       document.getElementById("addView").hidden = t.dataset.tab !== "add";
     });
   });
-
+ 
   document.getElementById("noticeForm").addEventListener("submit", function (e) {
     e.preventDefault();
     var title = document.getElementById("fTitle").value.trim();
@@ -329,14 +329,14 @@
     tabs[0].click();
     refresh();
   });
-
+ 
   function showToast(msg) {
     var t = document.getElementById("toast");
     t.textContent = msg;
     t.classList.add("show");
     setTimeout(function () { t.classList.remove("show"); }, 1800);
   }
-
+ 
   refresh();
 })();
 </script>
